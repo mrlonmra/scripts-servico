@@ -5,7 +5,7 @@ from tkinter import messagebox
 # Configurações do servidor SMTP
 smtp_server = 'smtp.terra.com.br'
 smtp_port = 587
-smtp_username = 'segiocarreiro@terra.com.br'
+smtp_username = 'email-aqui'
 smtp_password = 'd06m06'
 
 
