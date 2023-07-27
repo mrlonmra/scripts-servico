@@ -7,7 +7,7 @@ from tkinter import messagebox
 
 # Configurações de conexão IMAP
 HOST = 'imap.terra.com.br'
-USERNAME = 'segiocarreiro@terra.com.br'
+USERNAME = 'email-aqui'
 PASSWORD = 'd06m06'
 SEARCH_KEYWORDS = ['Sinesp']
 
