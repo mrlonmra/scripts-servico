@@ -1,0 +1,3 @@
+https://hibrida.ileva.com.br/sistema/adm/indication/reprovarDocTermo/ID-DA-INDICAÇAO
+
+https://hibrida.ileva.com.br/sistema/adm/indication/retornarTermoPendente/ID-DA-INDICAÇAO

@@ -1,5 +1,5 @@
 import openpyxl
-from tkinter import Tk, Label, Entry, Button, Checkbutton, IntVar, simpledialog
+from tkinter import Tk, Label, Entry, Button, Checkbutton, IntVar, simpledialog, filedialog
 
 def gerar_tabela_faixas_preco():
     inicio = float(inicio_entry.get())
@@ -25,12 +25,14 @@ def gerar_tabela_faixas_preco():
         valor_inicial += incremento
         row += 1
 
-    filename = simpledialog.askstring("Salvar tabela", "Digite o nome do arquivo:")
-    if filename:
-        workbook.save(f"{filename}.xlsx")
-        result_label.config(text="Tabela de faixas de preço gerada e salva com sucesso!")
+    # Ask user to select the save location using a file dialog
+    file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel Files", "*.xlsx")])
+    
+    if file_path:
+        workbook.save(file_path)
+        result_label.config(text="Tabela de faixas de preço gerada e salva com sucesso em:\n{}".format(file_path))
     else:
-        result_label.config(text="Falha ao salvar a tabela. Nome do arquivo não fornecido.")
+        result_label.config(text="Falha ao salvar a tabela. Local de arquivo não fornecido.")
 
 # Criação da janela principal
 window = Tk()
