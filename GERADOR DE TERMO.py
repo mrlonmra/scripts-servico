@@ -1,3 +1,5 @@
+import sys
+import os
 from io import BytesIO
 import requests
 import tkinter as tk
@@ -45,12 +47,11 @@ root.eval('tk::PlaceWindow . center')
 background = ttk.Frame(root, style="TLabel")
 background.place(relwidth=1, relheight=1)
 
-# Redimensionando a imagem da logo
-logo_path = "logo.png"  # Substitua pelo caminho da sua logo
+# Obtém o caminho do diretório atual
+current_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+# Cria o caminho relativo para a imagem "logo.png"
+logo_path = os.path.join(current_dir, "logo.png")
 logo_image = tk.PhotoImage(file=logo_path)  # Redimensiona a imagem para 200x200
-logo_label = tk.Label(root, image=logo_image, bg="#0F1120")  # Definindo a cor de fundo do label da logo
-logo_label.pack(pady=10)  # Adicionando espaçamento no topo
-
 logo_label = ttk.Label(background, image=logo_image)
 logo_label.pack(side=TOP, padx=10, pady=10)
 
