@@ -1,0 +1,33 @@
+var novoBeneficio = {
+  "calculo": "fixo",
+  "nome": "CARRO RESERVA + 30 DIAS",
+  "valor": 20,
+  "id": 5,
+  "negativo": 1,
+  "active": 0,
+  "id_relacao": null,
+  "id_indication": 56478
+};
+
+// URL da API para adicionar um novo benefício
+var url = "https://hibrida.ileva.com.br/sistema/adm/indication/newBenefit";
+
+// Configuração da solicitação HTTP POST
+var config = {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(novoBeneficio)
+};
+
+// Fazer a solicitação HTTP POST
+fetch(url, config)
+  .then(response => response.json())
+  .then(data => {
+    console.log("Resposta do servidor:", data);
+    // Aqui você pode lidar com a resposta do servidor, se necessário
+  })
+  .catch(error => {
+    console.error("Ocorreu um erro:", error);
+  });
