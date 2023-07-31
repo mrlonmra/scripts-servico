@@ -1,6 +1,8 @@
+import sys
 import os
 import time
 import tkinter as tk
+import tkinter as ttk
 from tkinter import filedialog
 from tkinter import scrolledtext
 from tkinter import PhotoImage
@@ -23,11 +25,13 @@ def get_login_info():
     # Adicionando um background com cor específica (#0F1120)
     root.configure(bg="#0F1120")
 
-    # Redimensionando a imagem da logo
-    logo_path = "logo.png"  # Substitua pelo caminho da sua logo
+    # Obtém o caminho do diretório atual
+    current_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    # Cria o caminho relativo para a imagem "logo.png"
+    logo_path = os.path.join(current_dir, "logo.png")
     logo_image = tk.PhotoImage(file=logo_path)  # Redimensiona a imagem para 200x200
-    logo_label = tk.Label(root, image=logo_image, bg="#0F1120")  # Definindo a cor de fundo do label da logo
-    logo_label.pack(pady=10)  # Adicionando espaçamento no topo
+    logo_label = ttk.Label(image=logo_image, borderwidth=0, highlightthickness=0)
+    logo_label.pack(padx=10, pady=10)
 
     # Criando um frame para agrupar os campos de URL, usuário e senha
     input_frame = tk.Frame(root, bg="#0F1120")  # Definindo a cor de fundo do frame
@@ -137,6 +141,9 @@ def process_login(url, username, password):
 
         # Upload the photo and add description
         upload_photo_with_description(driver, None, caminho_da_imagem, descricao)
+
+    # After all photos have been uploaded, print a message
+    print("Todas as fotos da pasta foram enviadas!")
         
     def console_print(text):
         console_text.insert(tk.END, text + '\n')
