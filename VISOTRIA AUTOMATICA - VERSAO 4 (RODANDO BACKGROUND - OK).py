@@ -1,7 +1,7 @@
 import os
 import time
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.edge.options import Options  # Modificamos esta linha
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,21 +12,18 @@ from colorama import init, Fore
 init(autoreset=True)
 
 # Dados de login
-login_url = 'https://hibrida.ileva.com.br/sistema/adm/inspectionmodel/edit/id/40'
+login_url = 'https://hibrida.ileva.com.br/sistema/adm/inspectionmodel/edit/id/63'
 username = 'suporte03'
 password = 'Negaazul1!'
 
-# Configurar as opções do Chrome WebDriver
-chrome_options = Options()
-chromedriver_path = 'C:/Program Files/Google/Chrome/Application/chromedriver.exe'
-chrome_options.add_argument('--no-sandbox')  # Evita problemas de sandbox no ambiente de testes
-chrome_options.add_argument('executable_path=caminho/para/o/chromedriver.exe')  # Caminho do Chrome WebDriver
-chrome_options.add_argument('--headless')  # Enable headless mode
-chrome_options.add_argument('--log-level=3')
+edge_options = Options()  # Modificamos esta linha
+edgedriver_path = 'C:/Program Files (x86)/Microsoft/Edge/Application/MicrosoftEdgeDriver.exe'  # Altere para o caminho correto
+edge_options.add_argument('--no-sandbox')  # Evita problemas de sandbox no ambiente de testes
+edge_options.add_argument('--headless')  # Evita problemas de sandbox no ambiente de testes
+# Você pode precisar ajustar algumas opções específicas do Chrome que não são relevantes para o Edge
 
-# Passar os cookies da sessão para o WebDriver
 print("Inicializando o Navegador...")
-driver = webdriver.Chrome(options=chrome_options)
+driver = webdriver.Edge(options=edge_options)  # Modificamos esta linha
 
 # Fazer login no site
 print("Autenticando...")

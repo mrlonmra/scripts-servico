@@ -7,7 +7,7 @@ from tkinter import filedialog
 from tkinter import scrolledtext
 from tkinter import PhotoImage
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.edge.options import Options  # Modificamos esta linha
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -25,14 +25,14 @@ def get_login_info():
     # Adicionando um background com cor específica (#0F1120)
     root.configure(bg="#0F1120")
 
-    # Obtém o caminho do diretório atual
+ # Obtém o caminho do diretório atual
     current_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
     # Cria o caminho relativo para a imagem "logo.png"
     logo_path = os.path.join(current_dir, "logo.png")
     logo_image = tk.PhotoImage(file=logo_path)  # Redimensiona a imagem para 200x200
     logo_label = ttk.Label(image=logo_image, borderwidth=0, highlightthickness=0)
     logo_label.pack(padx=10, pady=10)
-
+    
     # Criando um frame para agrupar os campos de URL, usuário e senha
     input_frame = tk.Frame(root, bg="#0F1120")  # Definindo a cor de fundo do frame
     input_frame.pack(padx=10, pady=10)  # Adicionando espaçamento interno
@@ -94,15 +94,13 @@ def process_login(url, username, password):
 
     print = console_print
 
-    # Configurar as opções do Chrome WebDriver
-    chrome_options = Options()
-    chrome_options.add_argument('--no-sandbox')  # Evita problemas de sandbox no ambiente de testes
-    chrome_options.add_argument('--headless')  # Enable headless mode
-    chrome_options.add_argument('--log-level=3')
+    edge_options = Options()  # Modificamos esta linha
+    edgedriver_path = 'C:/Program Files (x86)/Microsoft/Edge/Application/MicrosoftEdgeDriver.exe'  # Altere para o caminho correto
+    edge_options.add_argument('--no-sandbox')  # Evita problemas de sandbox no ambiente de testes
+    edge_options.add_argument('--headless')  # Evita problemas de sandbox no ambiente de testes
 
-    # Passar os cookies da sessão para o WebDriver
     print("Inicializando o Navegador...")
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Edge(options=edge_options)  # Modificamos esta linha
 
     # Fazer login no site
     print("Autenticando...")
