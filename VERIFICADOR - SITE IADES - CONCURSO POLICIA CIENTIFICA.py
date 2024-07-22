@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart
 smtp_server = 'smtp.terra.com.br'
 smtp_port = 587
 smtp_username = 'segiocarreiro@terra.com.br'
-smtp_password = 'd06m06'
+smtp_password = ''
 
 # Define as informações do remetente e do destinatário do e-mail
 remetente = 'segiocarreiro@terra.com.br'
