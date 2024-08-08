@@ -4,10 +4,10 @@ import re
 import json
 
 # URL base
-base_url = "http://209.38.150.208/SGA/LOGS/nova_cliente_nova/"
+base_url = "http://209.xx.xx.208/SGA/LOGS/nova_cliente_nova/"
 api_associado_url = "https://api.hinova.com.br/api/sga/v2/associado/buscar/"
 api_veiculo_url = "https://api.hinova.com.br/api/sga/v2/veiculo/buscar/"
-api_token = "c619644cf96399a1fbeeb8221a8ca4072cab2f23d7d21aee362c52d3fd1724574948ded2741ecbf2fccbc2fb763a170d9d751a6ad2614b650ad3a3f1701449ef961b07f85a964d7d8aa3830a09f067798f37e1054a1f06dbb97df0831d650aa228b040cd4ff55aba8846cee535a6d91b9803a8f6bbe4b33f561732997d33994bb33f79b3672beff13c2b4697ca9d8899"
+api_token = "c619644cf96399a1fbeeb8221a8ca4072cab2f2....."
 
 def fetch_log_files(url):
     try:
