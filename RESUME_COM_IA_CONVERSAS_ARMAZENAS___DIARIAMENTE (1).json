@@ -1,0 +1,581 @@
+{
+  "name": "RESUME COM IA CONVERSAS ARMAZENAS - DIARIAMENTE",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Lar8pbzjdY0NoYZScLjJPll_AZnWOdaL47mvwmDItkQ",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lar8pbzjdY0NoYZScLjJPll_AZnWOdaL47mvwmDItkQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "dd274d81-ccb6-4c5e-b249-03fa4bd07a52",
+      "name": "Ler Mensagens Grupo",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        -1520,
+        220
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EKVWxkpLtEnPfrs8",
+          "name": "AUTH MRLON.MRA@GMAIL.COM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "39ddb48d-5356-4c1c-8c63-a3eb86f99247",
+              "leftValue": "={{new Date($json[\"Data/Hora\"].split(' ')[0].split('/').reverse().join('-')).toISOString().toDateTime().format(\"yyyy-MM-dd\")}}",
+              "rightValue": "={{ $now.setLocale(pt-BR).format(\"yyyy-MM-dd\") }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "10c2a01a-dac5-4a13-b59e-246a55dde24c",
+      "name": "Somente Hoje",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        -1300,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "981090d0-5b8b-4456-ba68-1ad19b0f83b3",
+              "name": "Mensagem",
+              "value": "=Nome Grupo: {{ $('Ler Mensagens Grupo').item.json['Nome Grupo'] }}\nNome Integrante: {{ $json['Nome do Participante'] }}\nMensagem: {{ $json['Mensagem Enviada'] }}\nData Mensagem: {{ $json['Data/Hora'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a8de3dd7-3f74-4c12-9b01-6af30492170d",
+      "name": "Map Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -1080,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 200
+      },
+      "id": "c1e931dc-1314-4424-b58b-09cfb9656b19",
+      "name": "Limitar Mensagens",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -840,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "97df9bd9-9c0a-42a0-a4ae-77488dd1a332",
+      "name": "Agregar Todas Mensagens",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -620,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "42478e7a-1573-4625-8f9a-fa7df206d02a",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ad178e33-7586-4673-8c7b-a3dd3797bbaf",
+      "name": "Map Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -160,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega o texto da variável de entrada\nlet inputText = $('Resumir Mensagens').item.json.response.text;\n\n// Substitui todos os casos de **texto** para *texto*\nlet outputText = inputText.replace(/\\*\\*(.*?)\\*\\*/g, '*$1*');\n\n// Remove aspas simples e duplas\noutputText = outputText.replace(/['\"]/g, '');\n\n// Preserva as quebras de linha como \\n\noutputText = outputText.replace(/\\n/g, '\\\\n');\n\n// Adiciona \\n entre parágrafos importantes ou quando necessário\noutputText = outputText.replace(/(\\*\\*.*?\\*\\*)/g, '\\\\n$1\\\\n');\n\n// Remove espaços em excesso\noutputText = outputText.trim();\n\n// Retorna o resultado formatado para o envio\nreturn {\n  json: {\n    outputText: outputText\n  }\n};\n"
+      },
+      "id": "4b7ca762-bd73-43c4-bcac-dec6072d627b",
+      "name": "Formatar Texto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        360,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash-latest",
+        "options": {}
+      },
+      "id": "9725a1be-7e8d-4541-97e3-13bcac8425b0",
+      "name": "Modelo Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        220,
+        420
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jiNJHl8lyKEAv8oN",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkSize": 500
+      },
+      "id": "beab3897-927c-4890-b49e-4238071e0df7",
+      "name": "Token Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "typeVersion": 1,
+      "position": [
+        60,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 500
+      },
+      "id": "07b909d7-d205-44a0-a5c4-13273019ae1e",
+      "name": "Token Splitter1",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterTokenSplitter",
+      "typeVersion": 1,
+      "position": [
+        60,
+        800
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "c0ed8fa8-512e-45d7-9fc5-fc244caefcf2",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        220,
+        800
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "BSa7Ez6MLZVkWpyv",
+          "name": "OpenAi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://whatsapp.studiokatyanemendes.com.br:8084/message/sendText/marlon",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YW5jZU5hbWUiOiJtYXJsb24iLCJhcGlOYW1lIjoid2hhdHNhcHAtYXBpIiwidG9rZW5JZCI6IjAxSjVEU0RZM0FQV0gxRVBFOU5IRzFLRlBBIiwiaWF0IjoxNzIzODE4NTA2LCJleHAiOjE3MjM4MTg1MDYsInN1YiI6ImctdCJ9.ZmydGHiWNccUULpXxnAs182iT6q6DYw5SLnNViBvyCk"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\"number\":\"556285009520\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"{{ $json.outputText }}\"}}",
+        "options": {}
+      },
+      "id": "4a4f8a52-1104-4d72-ab23-a567c69e1f72",
+      "name": "Enviar Resumo Grupo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "id": "681cd0e7-cd3e-4972-b157-51d5447fb701",
+      "name": "1x Dia as 19:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1740,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://whatsapp.studiokatyanemendes.com.br:8084/message/sendText/marlon",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YW5jZU5hbWUiOiJtYXJsb24iLCJhcGlOYW1lIjoid2hhdHNhcHAtYXBpIiwidG9rZW5JZCI6IjAxSjVEU0RZM0FQV0gxRVBFOU5IRzFLRlBBIiwiaWF0IjoxNzIzODE4NTA2LCJleHAiOjE3MjM4MTg1MDYsInN1YiI6ImctdCJ9.ZmydGHiWNccUULpXxnAs182iT6q6DYw5SLnNViBvyCk"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\"number\":\"556285009520\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"{{ $json.outputText }}\"}}  ",
+        "options": {}
+      },
+      "id": "d20a8ca6-0ae3-4a1f-9ba1-74d76515c703",
+      "name": "Enviar Resumo Grupo1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        600
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega o texto da variável de entrada\nlet inputText = $('Resumir Mensagens1').item.json.response.text;\n\n// Substitui todos os casos de **texto** para *texto*\nlet outputText = inputText.replace(/\\*\\*(.*?)\\*\\*/g, '*$1*');\n\n// Remove aspas simples e duplas\noutputText = outputText.replace(/['\"]/g, '');\n\n// Preserva as quebras de linha como \\n\noutputText = outputText.replace(/\\n/g, '\\\\n');\n\n// Adiciona \\n entre parágrafos importantes ou quando necessário\noutputText = outputText.replace(/(\\*\\*.*?\\*\\*)/g, '\\\\n$1\\\\n');\n\n// Remove espaços em excesso\noutputText = outputText.trim();\n\n// Retorna o resultado formatado para o envio\nreturn {\n  json: {\n    outputText: outputText\n  }\n};\n"
+      },
+      "id": "5f737ebb-8dfb-4df5-a5b0-dd696cd444d6",
+      "name": "Formatar Texto1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        380,
+        600
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "=https://api.z-api.io/instances/{{\"ID DA SUA INSTANCIA\"}}/token/{{ \"TOKEN DA SUA INSTANCIA\" }}/group-invitation-metadata?url={{ \"lINK DO GRUPO\" }}",
+        "options": {}
+      },
+      "id": "157b37d5-631e-4737-b3a3-2e5b808795f0",
+      "name": "Descobrir ID Grupo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        20
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "chunkingMode": "advanced",
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "combineMapPrompt": "Faça resumo das mensagens trocadas nos grupos, esses resumos devem ser separados em blocos de textos cada bloco sendo um grupo. Destaque os pontos importantes, evite mensagens individuais, revise para que seja conciso com a realidade.\n\nInstruções específicas:\n1. Utilize somente 1 asterisco para negritar.\n2. Nunca utilize aspas simples ou duplas.\n3. Certifique-se de destacar o nome dos participantes que estão interagindo e fornecer uma análise detalhada de cada grupo.\n\nConversa:\n\n\"{text}\"\n\nRESUMO DETALHADO:",
+              "prompt": "Faça resumo das mensagens trocadas nos grupos, esses resumos devem ser separados em blocos de textos cada bloco sendo um grupo. Destaque os pontos importantes, evite mensagens individuais, revise para que seja conciso com a realidade.\n\nInstruções específicas:\n1. Utilize somente 1 asterisco para negritar.\n2. Nunca utilize aspas simples ou duplas.\n3. Certifique-se de destacar o nome dos participantes que estão interagindo e fornecer uma análise detalhada de cada grupo.\n\nConversa:\n\n\"{text}\"\n\nRESUMO DETALHADO:"
+            }
+          }
+        }
+      },
+      "id": "0e4968a3-2f17-4c14-8bfd-b8c03d602154",
+      "name": "Resumir Mensagens1",
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2,
+      "position": [
+        40,
+        600
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obter as mensagens do input\nconst mensagens = items[0].json.data;\n\nconst mensagensAgrupadas = {};\n\n// Iterar sobre cada mensagem no array \"data\"\nmensagens.forEach(item => {\n    const mensagemCompleta = item.Mensagem;\n\n    // Extrair o nome do grupo, nome do integrante, mensagem e data\n    const nomeGrupoMatch = mensagemCompleta.match(/Nome Grupo: ([^\\n]+)/);\n    const nomeIntegranteMatch = mensagemCompleta.match(/Nome Integrante: ([^\\n]+)/);\n    const mensagemMatch = mensagemCompleta.match(/Mensagem: ([^\\n]+)/);\n    const dataMensagemMatch = mensagemCompleta.match(/Data Mensagem: ([^\\n]+)/);\n\n    const nomeGrupo = nomeGrupoMatch ? nomeGrupoMatch[1] : '';\n    const nomeIntegrante = nomeIntegranteMatch ? nomeIntegranteMatch[1] : '';\n    const mensagem = mensagemMatch ? mensagemMatch[1] : '';\n    const dataMensagem = dataMensagemMatch ? dataMensagemMatch[1] : '';\n\n    // Se o grupo ainda não existir no objeto, inicializa um array para ele\n    if (!mensagensAgrupadas[nomeGrupo]) {\n        mensagensAgrupadas[nomeGrupo] = [];\n    }\n\n    // Adicionar a mensagem ao array do grupo, mantendo a ordem de recebimento\n    mensagensAgrupadas[nomeGrupo].push({\n        nomeIntegrante,\n        mensagem,\n        dataMensagem\n    });\n});\n\n// Ordenar as mensagens dentro de cada grupo por data de recebimento\nObject.keys(mensagensAgrupadas).forEach(grupo => {\n    mensagensAgrupadas[grupo].sort((a, b) => new Date(a.dataMensagem) - new Date(b.dataMensagem));\n});\n\n// Retornar o objeto agrupado dentro de um campo \"data\"\nreturn [{ json: { data: mensagensAgrupadas } }];\n"
+      },
+      "id": "36ca6bd1-08c8-48a8-9382-cb0d315ab3e9",
+      "name": "mensagensPorGrupo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "chunkingMode": "advanced",
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "combineMapPrompt": "Resuma as mensagens, resumindo por grupo, faça em modelo de texto. Não omita nada.\n\nInstruções específicas:\n1. Utilize somente 1 asterisco para negritar.\n\n2. Nunca utilize aspas simples ou duplas.\n\n3. Certifique-se de destacar o nome dos participantes que estão interagindo e fornecer uma análise detalhada de cada grupo.\n\nConversa:\n\n\"{text}\"\n\nRESUMO DETALHADO:",
+              "prompt": "Resuma as mensagens, resumindo por grupo, faça em modelo de texto. Não omita nada.\n\nInstruções específicas:\n1. Utilize somente 1 asterisco para negritar.\n\n2. Nunca utilize aspas simples ou duplas.\n\n3. Certifique-se de destacar o nome dos participantes que estão interagindo e fornecer uma análise detalhada de cada grupo.\n\nConversa:\n\n\"{text}\"\n\nRESUMO DETALHADO:"
+            }
+          }
+        }
+      },
+      "id": "5234adac-5c2f-4383-99f1-21cbfd0d5912",
+      "name": "Resumir Mensagens",
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2,
+      "position": [
+        40,
+        220
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ler Mensagens Grupo": {
+      "main": [
+        [
+          {
+            "node": "Somente Hoje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Somente Hoje": {
+      "main": [
+        [
+          {
+            "node": "Map Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Dados": {
+      "main": [
+        [
+          {
+            "node": "Limitar Mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limitar Mensagens": {
+      "main": [
+        [
+          {
+            "node": "Agregar Todas Mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agregar Todas Mensagens": {
+      "main": [
+        [
+          {
+            "node": "mensagensPorGrupo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Input": {
+      "main": [
+        [
+          {
+            "node": "Resumir Mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Texto": {
+      "main": [
+        [
+          {
+            "node": "Enviar Resumo Grupo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo Google Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Resumir Mensagens",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Resumir Mensagens",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Resumir Mensagens1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Resumir Mensagens1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1x Dia as 19:00": {
+      "main": [
+        [
+          {
+            "node": "Ler Mensagens Grupo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Texto1": {
+      "main": [
+        [
+          {
+            "node": "Enviar Resumo Grupo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resumir Mensagens1": {
+      "main": [
+        [
+          {
+            "node": "Formatar Texto1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mensagensPorGrupo": {
+      "main": [
+        [
+          {
+            "node": "Map Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resumir Mensagens": {
+      "main": [
+        [
+          {
+            "node": "Formatar Texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bbf348b3-cce0-4ec2-8c1e-93924e16b5df",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ef624543bfab6a61a911fa5b170f161024bf3a224e424710a52aa209e43c8eae"
+  },
+  "id": "8zD6ABCUQUdAR7g1",
+  "tags": []
+}

@@ -1,0 +1,919 @@
+{
+  "name": "Segunda via - Novo",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatbot",
+        "options": {}
+      },
+      "id": "d4c906cf-7fba-45b1-9e70-d90c32d33792",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        1140,
+        220
+      ],
+      "webhookId": "947c5190-b092-4551-92bd-44bd741fa1eb"
+    },
+    {
+      "parameters": {
+        "url": "=https://api-integracao.ileva.com.br/boleto/listar-associado-veiculo?inicio_paginacao=0&quantidade_por_pagina=2&situacao_boleto=Aberto&cpf_associado={{ $json.respostaCliente }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.ilevaToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7ebf0fba-dc98-44ed-b7e7-66fdd4192fc2",
+      "name": "API ILEVA - SEGUNDA VIA BOLETO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1700,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json[\"body\"][\"instance\"][\"name\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"number\": \"{{ $('Webhook').item.json['body']['data']['keyRemoteJid'] }}\", \"options\": { \"delay\": 1200, \"presence\": \"composing\" }, \"textMessage\": { \"text\": \"Que bom ter você por aqui *{{ $json.boletos[0].nome_associado }}*, você tem *{{ $json.boletos.length }}* boleto(s) em aberto(s).\\nQual boleto você gostaria de visualizar?\\n\\n{{ $json.boletos.map((boleto, index) => `${index + 1}. Referência: *${new Date(boleto.referencia + '-01').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(/^\\w/, (c) => c.toUpperCase())}*\\\\nValor: *R$ ${boleto.valor_boleto.toFixed(2)}*\\\\nVencimento: *${new Date(boleto.dt_vencimento).toLocaleDateString('pt-BR')}*\\\\nStatus: *${boleto.situacao_boleto}*\\\\nPlaca: *${boleto.veiculos.map(veiculo => veiculo.placa).join(', ')}*\\\\nLinha Digitável: *${boleto.linha_digitavel}*\\\\nURL do Boleto: *${boleto.url_boleto}`).join('\\\\n\\\\n') }}*\" } }",
+        "options": {}
+      },
+      "id": "405d4b3f-e692-4179-9e8f-7197c20e1099",
+      "name": "ENVIA BOLETO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2520,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.instanciaUrl }}/message/sendText/{{ $json.body.instance.name }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $json.body.data.keyRemoteJid }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"Entendi, você quer a *Segunda Via* da sua fatura!\\nAgora digite seu CPF no formato *XXX.XXX.XXX-XX* que irei te encaminhar as faturas em aberto.\"}} ",
+        "options": {}
+      },
+      "id": "c20b7621-2b55-4d26-a667-4b225dd9db5b",
+      "name": "SOLICITA CPF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2180,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json.body.instance.name }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $json.body.data.keyRemoteJid }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"Olá, eu sou um robô! 🤖\\n\\nGostaria de apresentar algumas opções para você:\\n\\n*1 - Segunda via de Boletos*\\n\\n*2 - Falar com Suporte*\\n\\nObrigado por entrar em contato!\"}}",
+        "options": {}
+      },
+      "id": "2e1967a9-b0c1-402f-9b16-c28aae26b0be",
+      "name": "MENU PRINCIPAL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1920,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendContact/{{ $('Webhook').item.json[\"body\"][\"instance\"][\"name\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"number\": \"{{ $('Webhook').item.json[\"body\"][\"data\"][\"keyRemoteJid\"] }}\", \"options\": { \"presence\": \"composing\" }, \"contactMessage\": [ { \"fullName\": \"Suporte Ileva\", \"wuid\": \"556236243285\", \"phoneNumber\": \"+55 62 3624-3285\" } ] }",
+        "options": {}
+      },
+      "id": "d3c8e8b3-55e8-49ab-a036-789eea15cb22",
+      "name": "ENVIA CONTATO SUP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2340,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json.body.instance.name }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $json.body.data.keyRemoteJid }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"O CPF deve ser no formato informado!\\n\\n*Segue o Exemplo: 123.456.789-10*\\n\\nTente novamente!\"}}",
+        "options": {}
+      },
+      "id": "fccfc18c-471a-4105-8ab7-9f222f5dc9fd",
+      "name": "CPF FORMATO INVALIDO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1700,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "f072865e-a17c-4380-9303-411a90bbbe0a",
+              "leftValue": "={{ $json.respostaCliente }}",
+              "rightValue": "1",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "95dd5ca0-b10f-4c96-826b-6d1ff5cc8de9",
+              "leftValue": "={{ $json.respostaCliente }}",
+              "rightValue": "2",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "47321c2b-87e0-4846-863f-6498760b046b",
+      "name": "VERIFICA SE É RESPOSTA DO MENU",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1700,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $json.body.instance.name }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $json.body.data.keyRemoteJid }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"Tudo bem, segue o contato do nosso suporte.\\n\\nÉ sempre um prazer ajuda-lo.\\n\\n*Ileva Gestão Inteligente*\"}} ",
+        "options": {}
+      },
+      "id": "633367da-9e5a-4094-a66a-2ed4eaefdc31",
+      "name": "INFORMA ENVIO CONTATO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2180,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json[\"body\"][\"instance\"][\"name\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $('Webhook').item.json[\"body\"][\"data\"][\"keyRemoteJid\"] }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"*{{ $('API ILEVA - SEGUNDA VIA BOLETO').item.json.boletos[0].nome_associado }}*, agradecemos a confiança, mantenha sua mensalidade em dia e fique protegido! 🚘\\n\\n*Para iniciar novamente digite qualquer mensagem.*\"}}",
+        "options": {}
+      },
+      "id": "82390b4a-a866-4ed4-904f-a823527d1f32",
+      "name": "AGRADECE CONFIANÇA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2720,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json[\"body\"][\"instance\"][\"name\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $('Webhook').item.json[\"body\"][\"data\"][\"keyRemoteJid\"] }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"Agradecemos a confiança! Para Iniciar novamente digite uma mensagem.\"}}",
+        "options": {}
+      },
+      "id": "cf99c4ab-8be9-4a76-8189-4fee231269eb",
+      "name": "AGRADECE CONFIANÇA - ENVIO CONTATO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2520,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json[\"body\"][\"instance\"][\"name\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $('Webhook').item.json[\"body\"][\"data\"][\"keyRemoteJid\"] }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"Hmmm... 🤖\\nNão encontramos seu CPF!\\nVerifique o número e tente novamente!\"}}",
+        "options": {}
+      },
+      "id": "a7afdaec-6458-4291-900f-8480e911367e",
+      "name": "CPF NAO EXISTE TENTE DE NOVO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2520,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "countBoletos",
+              "stringValue": "={{$json[\"boletos\"].length}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0dca390c-73fc-4dee-8b84-69fa1215f334",
+      "name": "VERIFICA QUANTIDADE BOLETOS",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        2120,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "68ea202c-4969-4422-82f2-1aa70e7f6481",
+              "leftValue": "={{ $json[\"countBoletos\"] > 1 ? \"true\" : \"false\" }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c709a666-d84b-41ce-9f7e-a5a259ee7f22",
+      "name": "TEM MAIS DE UM BOLETO?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2300,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "2bc59777-f99c-43f8-9cd6-873e2ca79f3d",
+              "leftValue": "={{ $('API ILEVA - SEGUNDA VIA BOLETO').item.json.boletos }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "df0b707d-6325-43c1-81db-3ae7f8398058",
+      "name": "VERIFICA SE TROUXE BOLETO",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "daedc718-7a42-474d-9c50-d16903468025",
+              "leftValue": "={{ $json.associado }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cfdc9498-e4f1-4e6b-9049-d4bb5975d90a",
+      "name": "VERIFICA SE ASSOCIADO EXISTE",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2300,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api-integracao.ileva.com.br/associado/buscar?cpf_cnpj={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.respostaCliente }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.ilevaToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "11be7e9e-a9e9-4a58-8b3f-42750040db57",
+      "name": "API ILEVA -  VERIFICA ASSOCIADO",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2120,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json[\"body\"][\"instance\"][\"name\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $('Webhook').item.json[\"body\"][\"data\"][\"keyRemoteJid\"] }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"Oba!! 🤖\\nNão existem boletos para seu CPF!\\nIsso aí, mantenha sua mensalidade em dia e continue protegido! 🚗\"}}",
+        "options": {}
+      },
+      "id": "80eac8be-a30e-49c4-8076-478956b14742",
+      "name": "CPF NÃO TEM BOLETOS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2520,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "instanciaKey",
+              "stringValue": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YW5jZU5hbWUiOiJtYXJsb24iLCJhcGlOYW1lIjoid2hhdHNhcHAtYXBpIiwidG9rZW5JZCI6IjU4NzNiYzI1LWZjNTktNGEyNC05MTRlLTI3ODhjZmU5M2NmOSIsImlhdCI6MTcwNDkxMzc0OSwiZXhwIjoxNzA0OTEzNzQ5LCJzdWIiOiJnLXQifQ.YISUg2jd05Z7Aq9d0mxokvUrVnFPwTUw3VLa_Xcr_0w"
+            },
+            {
+              "name": "instanciaUrl",
+              "stringValue": "https://appwhats.studiokatyanemendes.com.br"
+            },
+            {
+              "name": "ilevaToken",
+              "stringValue": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGllbnRlX25pY2tuYW1lIjoiZGVtbyIsImlkIjoxLCJoYXNoIjoiYzk0MjE3MjZkMDgwIn0.M3hJWCOkjmOl9X4t2HqQ3r_54EWN4CVTrXK6uS8ecLo"
+            },
+            {
+              "name": "respostaCliente",
+              "stringValue": "={{ $json.body.data.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a07cab66-6d9b-4580-9363-af6d16717f07",
+      "name": "CAMPOS INSTANCIA / API ILEVA",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        1300,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json[\"body\"][\"instance\"][\"name\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"number\": \"{{ $('Webhook').item.json['body']['data']['keyRemoteJid'] }}\", \"options\": { \"delay\": 1200, \"presence\": \"composing\" }, \"textMessage\": { \"text\": \"Que bom ter você por aqui *{{ $json.boletos[0].nome_associado }}*, você tem *{{ $json.boletos.length }}* boleto(s) em aberto(s).\\n\\n{{ $json.boletos.map((boleto, index) => `${index + 1}. Referência: *${new Date(boleto.referencia + '-01').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(/^\\w/, (c) => c.toUpperCase())}*\\\\nValor: *R$ ${boleto.valor_boleto.toFixed(2)}*\\\\nVencimento: *${new Date(boleto.dt_vencimento).toLocaleDateString('pt-BR')}*\\\\nStatus: *${boleto.situacao_boleto}*\\\\nPlaca: *${boleto.veiculos.map(veiculo => veiculo.placa).join(', ')}*\\\\nLinha Digitável: *${boleto.linha_digitavel}*\\\\nURL do Boleto: *${boleto.url_boleto}`).join('\\\\n\\\\n') }}*\" } }",
+        "options": {}
+      },
+      "id": "b1b530ba-96d9-4cfc-86de-3f3ed783d685",
+      "name": "ENVIA TODAS FATURAS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2520,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaUrl }}/message/sendText/{{ $('Webhook').item.json[\"body\"][\"instance\"][\"name\"] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('CAMPOS INSTANCIA / API ILEVA').item.json.instanciaKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"number\":\"{{ $('Webhook').item.json[\"body\"][\"data\"][\"keyRemoteJid\"] }}\",\"options\":{\"delay\":1200,\"presence\":\"composing\"},\"textMessage\":{\"text\":\"*{{ $('API ILEVA - SEGUNDA VIA BOLETO').item.json.boletos[0].nome_associado }}*, agradecemos a confiança, mantenha sua mensalidade em dia e fique protegido!\\nPara iniciar novamente digite qualquer mensagem.\"}}",
+        "options": {}
+      },
+      "id": "8defe875-2962-4048-89d7-925f8a8c2eec",
+      "name": "AGRADECE CONFIANÇA 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2720,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.respostaCliente }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "1",
+              "outputKey": "1"
+            },
+            {
+              "value2": "2",
+              "outputKey": "2"
+            }
+          ]
+        }
+      },
+      "id": "6d51e242-2594-4315-8e63-bef2fb8f734b",
+      "name": "OPÇÃO ESCOLHIDA",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.respostaCliente }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "regex",
+              "value2": "^\\d{11}$",
+              "outputKey": "1"
+            },
+            {
+              "operation": "regex",
+              "value2": "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$",
+              "outputKey": "2"
+            },
+            {
+              "operation": "notContains",
+              "value2": "=-",
+              "outputKey": "3"
+            }
+          ]
+        }
+      },
+      "id": "e077a540-1739-450f-a22b-9d4f26d36c6d",
+      "name": "VERIFICA SE É RESPOSTA CPF",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        220
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "API ILEVA - SEGUNDA VIA BOLETO": {
+      "main": [
+        [
+          {
+            "node": "VERIFICA SE TROUXE BOLETO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ENVIA BOLETO": {
+      "main": [
+        [
+          {
+            "node": "AGRADECE CONFIANÇA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VERIFICA SE É RESPOSTA DO MENU": {
+      "main": [
+        [
+          {
+            "node": "MENU PRINCIPAL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OPÇÃO ESCOLHIDA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INFORMA ENVIO CONTATO": {
+      "main": [
+        [
+          {
+            "node": "ENVIA CONTATO SUP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "CAMPOS INSTANCIA / API ILEVA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ENVIA CONTATO SUP": {
+      "main": [
+        [
+          {
+            "node": "AGRADECE CONFIANÇA - ENVIO CONTATO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VERIFICA QUANTIDADE BOLETOS": {
+      "main": [
+        [
+          {
+            "node": "TEM MAIS DE UM BOLETO?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TEM MAIS DE UM BOLETO?": {
+      "main": [
+        [
+          {
+            "node": "ENVIA TODAS FATURAS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ENVIA BOLETO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VERIFICA SE TROUXE BOLETO": {
+      "main": [
+        [
+          {
+            "node": "VERIFICA QUANTIDADE BOLETOS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API ILEVA -  VERIFICA ASSOCIADO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VERIFICA SE ASSOCIADO EXISTE": {
+      "main": [
+        [
+          {
+            "node": "CPF NÃO TEM BOLETOS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CPF NAO EXISTE TENTE DE NOVO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API ILEVA -  VERIFICA ASSOCIADO": {
+      "main": [
+        [
+          {
+            "node": "VERIFICA SE ASSOCIADO EXISTE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CAMPOS INSTANCIA / API ILEVA": {
+      "main": [
+        [
+          {
+            "node": "VERIFICA SE É RESPOSTA CPF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ENVIA TODAS FATURAS": {
+      "main": [
+        [
+          {
+            "node": "AGRADECE CONFIANÇA 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OPÇÃO ESCOLHIDA": {
+      "main": [
+        [
+          {
+            "node": "SOLICITA CPF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "INFORMA ENVIO CONTATO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VERIFICA SE É RESPOSTA CPF": {
+      "main": [
+        [
+          {
+            "node": "CPF FORMATO INVALIDO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API ILEVA - SEGUNDA VIA BOLETO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "VERIFICA SE É RESPOSTA DO MENU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c0f06745-49a6-478f-97ec-c07ef8769352",
+  "id": "APIKGm10Bn6q4LcX",
+  "meta": {
+    "instanceId": "a92f67e1c57754b1d8584249c968b8815fbe3e6513508cabeef362288812d7fa"
+  },
+  "tags": []
+}

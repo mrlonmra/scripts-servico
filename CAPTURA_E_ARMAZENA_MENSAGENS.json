@@ -1,0 +1,1226 @@
+{
+  "name": "CAPTURA E ARMAZENA MENSAGENS",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "89d5ec19-ac62-480d-b0ce-a6bca54484da",
+              "name": "tipoMensagem",
+              "value": "={{ $json.body.data.messageType }}",
+              "type": "string"
+            },
+            {
+              "id": "b8edb472-3db5-458e-8dc8-1d4605953849",
+              "name": "idGrupo",
+              "value": "={{ $json.body.data.keyRemoteJid }}",
+              "type": "string"
+            },
+            {
+              "id": "a72c6b86-e12f-4656-9907-91ea592616b7",
+              "name": "nomeInstancia",
+              "value": "={{ $json.body.instance.name }}",
+              "type": "string"
+            },
+            {
+              "id": "f8f547ed-1228-4b5a-8cca-bfebecfce553",
+              "name": "nomeRemetente",
+              "value": "={{ $json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "f97c7c6d-3989-4a21-8b90-0847b733b520",
+              "name": "numeroRemetente",
+              "value": "={{ $json.body.data.keyParticipant }}",
+              "type": "string"
+            },
+            {
+              "id": "1cd078f5-2270-4887-8e82-bd25bd02d3e3",
+              "name": "idMsg",
+              "value": "={{ $json.body.data.keyId }}",
+              "type": "string"
+            },
+            {
+              "id": "bdeb71b1-68d4-4c30-8f3f-2ceb378ca4c0",
+              "name": "filtroGrupo",
+              "value": "={{ $json.body.data.isGroup }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "887e5a24-ff4a-4e73-906f-ea890c6d3e47",
+      "name": "mapaCampos",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=http://whatsapp.studiokatyanemendes.com.br:8084/group/findGroupInfos/marlon?groupJid={{ $('mapaCampos').item.json.idGrupo }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "Negaazul1!"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "52b6642f-ca33-4b0e-9a14-9ce9676e1293",
+      "name": "nomeGrupoTexto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        860,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "carregamensagens",
+        "options": {}
+      },
+      "id": "38c7d8e1-5269-4164-b8db-27b4158606d9",
+      "name": "Webhook Z-API",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -420,
+        480
+      ],
+      "webhookId": "1ba8914a-b048-4b21-81d0-7e8f50b3c74b"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "f5351e4d-c9fe-4468-a203-c9eb19b63185",
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "messages.upsert",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3d62301f-2224-413e-9fcc-3a21012b4597",
+      "name": "verificaEvento",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "96f83da0-69bc-4a6e-b7fe-ec3fd1c48462",
+              "name": "audioTranscrito",
+              "value": "={{ $json.transcription }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cc88185f-f43f-4c02-a073-fd6a2ec39fae",
+      "name": "audioTranscrito",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1540,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=http://whatsapp.studiokatyanemendes.com.br:8084/group/findGroupInfos/marlon?groupJid={{ $json.idGrupo }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "Negaazul1!"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8dcc4adc-ba51-4a1a-a194-e0b573643619",
+      "name": "nomeGrupoAudio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://206.189.189.61:6061/upload_image",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "2d80545a-d8e0-4e2a-b62f-287e22d2fcee",
+      "name": "enviaFotoIA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1040,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $('Webhook Z-API').item.json.body.data.messageTimestamp}}",
+        "format": "custom",
+        "customFormat": "dd/MM/yyyy TT",
+        "options": {
+          "timezone": true
+        }
+      },
+      "id": "464e6889-810e-4b4d-945a-b593ffffaa9b",
+      "name": "formataTimestamp",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $('Webhook Z-API').item.json.body.data.messageTimestamp}}",
+        "format": "custom",
+        "customFormat": "dd/MM/yyyy TT",
+        "options": {
+          "timezone": true
+        }
+      },
+      "id": "7ef17c11-8e10-4b13-8729-1e4b2c72b584",
+      "name": "formataTimestamp1",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $('Webhook Z-API').item.json.body.data.messageTimestamp}}",
+        "format": "custom",
+        "customFormat": "dd/MM/yyyy TT",
+        "options": {
+          "timezone": true
+        }
+      },
+      "id": "13ca0917-d297-4077-9202-001f319ec170",
+      "name": "formataTimestamp2",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4dbe296b-22fc-42ec-8ab4-5e5d4373d186",
+              "name": "messageId",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.keyId }}",
+              "type": "string"
+            },
+            {
+              "id": "e8da3d3d-35d7-4bc3-9b8d-733eee717b87",
+              "name": "Nome Grupo",
+              "value": "={{ $('nomeGrupoTexto').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "3a9cd93f-5a5c-4525-a790-57768bc449df",
+              "name": "Nome do Participante",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "85100861-dcb2-4a11-8580-564abc868d20",
+              "name": "Número do Participante",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.keyParticipant }}",
+              "type": "string"
+            },
+            {
+              "id": "875ad756-2e6e-4652-bc3f-41a5dfc09968",
+              "name": "Mensagem Enviada",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.content.text }}",
+              "type": "string"
+            },
+            {
+              "id": "e972dbd7-5b0f-4634-8dfd-4cad3afa5f3f",
+              "name": "Data/Hora",
+              "value": "={{ $json.formattedDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e7daf9a0-2721-43bd-9297-d26061fd5af8",
+      "name": "mapeiaInfosTexto",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1200,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4dbe296b-22fc-42ec-8ab4-5e5d4373d186",
+              "name": "messageId",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.keyId }}",
+              "type": "string"
+            },
+            {
+              "id": "e8da3d3d-35d7-4bc3-9b8d-733eee717b87",
+              "name": "Nome Grupo",
+              "value": "={{ $('nomeGrupoAudio').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "3a9cd93f-5a5c-4525-a790-57768bc449df",
+              "name": "Nome do Participante",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "85100861-dcb2-4a11-8580-564abc868d20",
+              "name": "Número do Participante",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.keyParticipant }}",
+              "type": "string"
+            },
+            {
+              "id": "875ad756-2e6e-4652-bc3f-41a5dfc09968",
+              "name": "Mensagem Enviada",
+              "value": "={{ $('traduzDescricaoImagem').item.json.trans }} - IMAGEM/IA",
+              "type": "string"
+            },
+            {
+              "id": "e972dbd7-5b0f-4634-8dfd-4cad3afa5f3f",
+              "name": "Data/Hora",
+              "value": "={{ $json.formattedDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ac4627a-215a-470a-a31f-9d4d8423b399",
+      "name": "mapeiaInfosImagem",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1540,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4dbe296b-22fc-42ec-8ab4-5e5d4373d186",
+              "name": "messageId",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.keyId }}",
+              "type": "string"
+            },
+            {
+              "id": "e8da3d3d-35d7-4bc3-9b8d-733eee717b87",
+              "name": "Nome Grupo",
+              "value": "={{ $('nomeGrupoAudio').item.json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "3a9cd93f-5a5c-4525-a790-57768bc449df",
+              "name": "Nome do Participante",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "85100861-dcb2-4a11-8580-564abc868d20",
+              "name": "Número do Participante",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.keyParticipant }}",
+              "type": "string"
+            },
+            {
+              "id": "875ad756-2e6e-4652-bc3f-41a5dfc09968",
+              "name": "Mensagem Enviada",
+              "value": "={{ $('InteligenciaArtificialReescreveTexto').item.json.processed_text }} - AUDIO/IA",
+              "type": "string"
+            },
+            {
+              "id": "e972dbd7-5b0f-4634-8dfd-4cad3afa5f3f",
+              "name": "Data/Hora",
+              "value": "={{ $json.formattedDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f7bf988b-b61b-4361-851d-62d64fd050b7",
+      "name": "mapeiaInfosAudio",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        2160,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://206.189.189.61:6061/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "33e34d77-d322-49bb-8fc6-c4e7c672b5a9",
+      "name": "enviaAudioIA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "destinationKey": "base64",
+        "options": {}
+      },
+      "id": "518c3ded-b55b-48e1-8b3d-bda2baf478d4",
+      "name": "audioBase64",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://studiokatyanemendes.com.br:8084/chat/retrieverMediaMessage/{{ $('mapaCampos').item.json.nomeInstancia }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YW5jZU5hbWUiOiJtYXJsb24iLCJhcGlOYW1lIjoid2hhdHNhcHAtYXBpIiwidG9rZW5JZCI6IjAxSjVEU0RZM0FQV0gxRVBFOU5IRzFLRlBBIiwiaWF0IjoxNzIzODE4NTA2LCJleHAiOjE3MjM4MTg1MDYsInN1YiI6ImctdCJ9.ZmydGHiWNccUULpXxnAs182iT6q6DYw5SLnNViBvyCk"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "34dbaa16-2e90-4d16-95e6-3237bee29075",
+      "name": "retrieverMediaImagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        860,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://studiokatyanemendes.com.br:8084/chat/retrieverMediaMessage/{{ $('mapaCampos').item.json.nomeInstancia }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YW5jZU5hbWUiOiJtYXJsb24iLCJhcGlOYW1lIjoid2hhdHNhcHAtYXBpIiwidG9rZW5JZCI6IjAxSjVEU0RZM0FQV0gxRVBFOU5IRzFLRlBBIiwiaWF0IjoxNzIzODE4NTA2LCJleHAiOjE3MjM4MTg1MDYsInN1YiI6ImctdCJ9.ZmydGHiWNccUULpXxnAs182iT6q6DYw5SLnNViBvyCk"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "={{ $('Webhook Z-API').item.json.body.data.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "66d02431-32ad-4e19-80ba-d3b98d12d774",
+      "name": "retrieverMediaAudio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        860,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "fileName": "audio.mp3",
+          "mimeType": "audio/mpeg"
+        }
+      },
+      "id": "eb764a19-4019-4a31-b11f-255c67316520",
+      "name": "binarioAudio",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1220,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Lar8pbzjdY0NoYZScLjJPll_AZnWOdaL47mvwmDItkQ",
+          "mode": "list",
+          "cachedResultName": "Planilha sem título",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lar8pbzjdY0NoYZScLjJPll_AZnWOdaL47mvwmDItkQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lar8pbzjdY0NoYZScLjJPll_AZnWOdaL47mvwmDItkQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "messageId",
+              "displayName": "messageId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nome Grupo",
+              "displayName": "Nome Grupo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nome do Participante",
+              "displayName": "Nome do Participante",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Número do Participante",
+              "displayName": "Número do Participante",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Mensagem Enviada",
+              "displayName": "Mensagem Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Data/Hora",
+              "displayName": "Data/Hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3f89eb13-885b-4b48-a56c-567655a8d409",
+      "name": "inserePlanilha",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        1720,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EKVWxkpLtEnPfrs8",
+          "name": "AUTH MRLON.MRA@GMAIL.COM"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google-translate113.p.rapidapi.com/api/v1/translator/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-RapidAPI-Key",
+              "value": "d803947fb9msh2836690cd477237p144b80jsn6b14d20d2c4d"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "en"
+            },
+            {
+              "name": "to",
+              "value": "pt"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.analysis }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "a94b33e2-cbf6-4b19-8e76-e053bd90f80f",
+      "name": "traduzDescricaoImagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1220,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://206.189.189.61:6061/process_text",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=O texto foi transcrito de um áudio, porem ficou confuso, resuma o texto de forma coesa todos os detalhes ricamente, do texto esta a seguir: \"{{ $json.audioTranscrito }}\""
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "a1ebb04b-beb0-46ac-bfbd-29d329ef3d9b",
+      "name": "InteligenciaArtificialReescreveTexto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1720,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('mapaCampos').item.json.tipoMensagem }}",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "54917452-8c04-48c3-917c-f9f08c52ec3b",
+                    "leftValue": "={{ $('mapaCampos').item.json.tipoMensagem }}",
+                    "rightValue": "conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "dbf2a895-3fb4-4ccb-858a-ca84f5baeff5",
+                    "leftValue": "={{ $('mapaCampos').item.json.tipoMensagem }}",
+                    "rightValue": "imageMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "39c928a9-b78d-460c-be6e-edee79873d19",
+                    "leftValue": "={{ $('mapaCampos').item.json.tipoMensagem }}",
+                    "rightValue": "extendedTextMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "1fc36e4e-f2ef-4150-95df-84abbb952696",
+                    "leftValue": "={{ $('mapaCampos').item.json.tipoMensagem }}",
+                    "rightValue": "videoMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2430aff8-ad21-4577-a08b-979133796773",
+      "name": "tipoMensagem",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        560,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "60a4b05c-d178-497c-9e40-33db01dbdd99",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Nodejs - Baileys-WhiskeysSockets",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "df77333d-b90c-45e7-9d94-a65a7be745af",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "CodeChat",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "4d9bb428-77e8-490b-a877-22f5ef4c88a0",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Mensagens - Suporte",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "1a1cbe90-9cd3-4624-a31f-37ced74bfd45",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "HÍBRIDA INTELIGÊNCIA WEB",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "c6bd3086-d927-418d-9a5c-97ba17b83e4b",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Equipe de Suporte interna",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "1ee1514e-05ec-40f5-aef8-5a29232e74c4",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Ileva - DEV's da depressão",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "a1e1006f-1aec-4c4e-9992-464285d5b279",
+      "name": "grupoDev",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        320,
+        360
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "mapaCampos": {
+      "main": [
+        [
+          {
+            "node": "nomeGrupoAudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nomeGrupoTexto": {
+      "main": [
+        [
+          {
+            "node": "formataTimestamp2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Z-API": {
+      "main": [
+        [
+          {
+            "node": "verificaEvento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verificaEvento": {
+      "main": [
+        [
+          {
+            "node": "mapaCampos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "audioTranscrito": {
+      "main": [
+        [
+          {
+            "node": "InteligenciaArtificialReescreveTexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nomeGrupoAudio": {
+      "main": [
+        [
+          {
+            "node": "grupoDev",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enviaFotoIA": {
+      "main": [
+        [
+          {
+            "node": "traduzDescricaoImagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "formataTimestamp": {
+      "main": [
+        [
+          {
+            "node": "mapeiaInfosImagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "formataTimestamp1": {
+      "main": [
+        [
+          {
+            "node": "mapeiaInfosAudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "formataTimestamp2": {
+      "main": [
+        [
+          {
+            "node": "mapeiaInfosTexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeiaInfosTexto": {
+      "main": [
+        [
+          {
+            "node": "inserePlanilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeiaInfosImagem": {
+      "main": [
+        [
+          {
+            "node": "inserePlanilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mapeiaInfosAudio": {
+      "main": [
+        [
+          {
+            "node": "inserePlanilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enviaAudioIA": {
+      "main": [
+        [
+          {
+            "node": "audioTranscrito",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "audioBase64": {
+      "main": [
+        [
+          {
+            "node": "binarioAudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrieverMediaImagem": {
+      "main": [
+        [
+          {
+            "node": "enviaFotoIA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrieverMediaAudio": {
+      "main": [
+        [
+          {
+            "node": "audioBase64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "binarioAudio": {
+      "main": [
+        [
+          {
+            "node": "enviaAudioIA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "traduzDescricaoImagem": {
+      "main": [
+        [
+          {
+            "node": "formataTimestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InteligenciaArtificialReescreveTexto": {
+      "main": [
+        [
+          {
+            "node": "formataTimestamp1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tipoMensagem": {
+      "main": [
+        [
+          {
+            "node": "retrieverMediaAudio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "nomeGrupoTexto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "retrieverMediaImagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "nomeGrupoTexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "grupoDev": {
+      "main": [
+        [],
+        [
+          {
+            "node": "tipoMensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b63d9202-0ae6-4f33-a89e-f5ec0ba05b70",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ef624543bfab6a61a911fa5b170f161024bf3a224e424710a52aa209e43c8eae"
+  },
+  "id": "ASfSWnA3afUu4yDA",
+  "tags": []
+}
