@@ -29,7 +29,7 @@ def watch_file(file_path, sender_email, sender_password, receiver_email):
 if __name__ == '__main__':
     file_path = '/var/www/sinesp-mj.site/dados.txt'
     sender_email = 'segiocarreiro@terra.com.br'
-    sender_password = 'd06m06'
+    sender_password = ''
     receiver_email = 'mrlon.mra@gmail.com'
 
     watch_file(file_path, sender_email, sender_password, receiver_email)
